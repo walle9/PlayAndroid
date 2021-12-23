@@ -1,5 +1,6 @@
 package com.walle.playandroid.net.api
 
+import com.walle.playandroid.model.Article
 import com.walle.playandroid.net.NetResponse
 import com.walle.playandroid.net.retrofit
 import retrofit2.http.GET

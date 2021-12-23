@@ -2,4 +2,5 @@
 <resources>
     <string name="hoem">首页</string>
     <string name="mine">我的</string>
+    <string name="retry">retry</string>
 </resources>

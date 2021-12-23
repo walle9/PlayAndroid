@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.walle.playandroid.HomeFragment"
-        android:label="fragment_home"
+        android:name="com.walle.playandroid.ui.fragment.HomeFragment"
+        android:label="@string/hoem"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/mineFragment"
-        android:name="com.walle.playandroid.MineFragment"
-        android:label="fragment_mine"
+        android:name="com.walle.playandroid.ui.fragment.MineFragment"
+        android:label="@string/mine"
         tools:layout="@layout/fragment_mine" />
 </navigation>

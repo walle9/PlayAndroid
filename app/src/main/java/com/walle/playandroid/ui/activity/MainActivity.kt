@@ -1,13 +1,18 @@
-package com.walle.playandroid
+package com.walle.playandroid.ui.activity
 
-import androidx.appcompat.app.AppCompatActivity
+
 import android.os.Bundle
+import android.text.TextUtils
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import com.walle.playandroid.R
 import com.walle.playandroid.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
