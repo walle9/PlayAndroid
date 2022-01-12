@@ -3,6 +3,7 @@ package com.walle.playandroid.data
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.walle.playandroid.model.Article
+import com.walle.playandroid.response.NetResponse
 import com.walle.playandroid.net.api.HomeApi
 import retrofit2.HttpException
 import java.io.IOException
@@ -23,10 +24,27 @@ class ArticlePagingSource : PagingSource<Int, Article.Data>() {
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Article.Data> {
+
         return try {
+            val response: NetResponse<Article>
             // Start refresh at page 1 if undefined.
             val position = params.key ?: STARTING_PAGE_INDEX
-            val response = HomeApi.getArticle(position)
+            if (position== STARTING_PAGE_INDEX) {
+                val articleTop = HomeApi.getArticleTop()
+               val article = HomeApi.getArticle(position)
+                val list = articleTop.data
+                val map = list.map {
+                    it.isTop = true
+                    it
+                }
+                response = article.also {
+                    it.data.datas.addAll(0,map)
+                }
+
+            } else{
+                response = HomeApi.getArticle(position)
+            }
+
             val data = response.data
             LoadResult.Page(
                 data = data.datas,

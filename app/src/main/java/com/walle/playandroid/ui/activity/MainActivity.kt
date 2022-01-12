@@ -8,11 +8,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.recyclerview.widget.ConcatAdapter
 import com.walle.playandroid.R
 import com.walle.playandroid.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
@@ -23,13 +24,13 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         val navController = findNavController(R.id.nav_host_fragment)
-        val appBarConfiguration = AppBarConfiguration(
+        /*val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.homeFragment,
                 R.id.mineFragment
             )
         )
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)*/
         NavigationUI.setupWithNavController(binding.bottomNavigationView, navController)
     }
 }

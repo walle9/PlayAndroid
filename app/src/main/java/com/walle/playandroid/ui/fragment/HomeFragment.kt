@@ -1,10 +1,8 @@
 package com.walle.playandroid.ui.fragment
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
@@ -13,11 +11,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.ViewPager2
 import com.walle.playandroid.R
 import com.walle.playandroid.adapter.ArticleLoadStateAdapter
+import com.walle.playandroid.adapter.BannerAdapter
 import com.walle.playandroid.adapter.HomeArticleAdapter
 import com.walle.playandroid.databinding.FragmentHomeBinding
-import com.walle.playandroid.databinding.ItemHomeArticleBinding
+import com.walle.playandroid.common.lifecycle.LifecycleEventDispatcher
 import com.walle.playandroid.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
@@ -25,50 +25,88 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment() {
     private val model: HomeViewModel by activityViewModels()
     private lateinit var binding: FragmentHomeBinding
-    private val adapter = HomeArticleAdapter()
+    private val homeArticleAdapter = HomeArticleAdapter()
+    private val bannerAdapter = BannerAdapter()
+    var bannerCurrentPosition = 0
+
+    private val menuItem: MenuItem by lazy {
+        binding.toolbar.menu.findItem(R.id.app_bar_search)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_home,container,false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
+        binding.data = model
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.retryButton.setOnClickListener {
-            adapter.retry()
+            homeArticleAdapter.retry()
+            model.getBanners()
         }
 
         binding.refresh.setOnRefreshListener {
-            adapter.refresh()
+            homeArticleAdapter.refresh()
+            if (model.banners.value == null) {
+                model.getBanners()
+            }
         }
 
-        binding.rvHome.addItemDecoration(DividerItemDecoration(requireContext(),DividerItemDecoration.VERTICAL))
-        binding.rvHome.layoutManager = LinearLayoutManager(requireContext())
+        menuItem.setOnMenuItemClickListener {
+            false
+        }
 
-        initAdapter()
+        initToolbar()
+        initRecyclerView()
+        initBanner()
 
-        if (!model.article.hasObservers()) {
-            model.article.observe(viewLifecycleOwner, {
-                binding.refresh.isRefreshing=false
-                lifecycleScope.launch { adapter.submitData(it) }
-            })
+    }
+
+    private fun initToolbar() {
+        binding.collapsingToolbarLayout.setExpandedTitleColor(resources.getColor(R.color.transparent))
+        binding.collapsingToolbarLayout.setCollapsedTitleTextColor(resources.getColor(R.color.white))
+
+        model.appbarLayoutIsClosed.observe(viewLifecycleOwner) { isClosed ->
+            menuItem.isVisible = isClosed
         }
     }
 
-    private fun initAdapter() {
-        binding.rvHome.adapter = adapter.withLoadStateHeaderAndFooter(
-            header = ArticleLoadStateAdapter{adapter.retry()},
-            footer = ArticleLoadStateAdapter{adapter.retry()}
-        )
-        adapter.addLoadStateListener {
+    private fun initBanner() {
+
+        binding.viewPager2.apply {
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            adapter = bannerAdapter
+            LifecycleEventDispatcher(
+                viewLifecycleOwner,
+                onResume = { model.setCarousel(true) },
+                onStop = { model.setCarousel(false) })
+        }
+
+        model.banners.observe(viewLifecycleOwner) {
+            bannerAdapter.setData(it)
+            bannerCurrentPosition = if (it.size > 1) 1 else 0
+            model.bannerCurrentItem.value = bannerCurrentPosition to false
+        }
+
+    }
+
+    private fun initRecyclerView() {
+
+        binding.rvHome.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.rvHome.layoutManager = LinearLayoutManager(requireContext())
+
+        binding.rvHome.adapter =
+            homeArticleAdapter.withLoadStateFooter(footer = ArticleLoadStateAdapter { homeArticleAdapter.retry() })
+        homeArticleAdapter.addLoadStateListener { it ->
             // show empty list
-            val isListEmpty = it.refresh is LoadState.NotLoading && adapter.itemCount == 0
+            val isListEmpty = it.refresh is LoadState.NotLoading && homeArticleAdapter.itemCount == 0
             showEmptyList(isListEmpty)
 
             // Only show the list if refresh succeeds.
@@ -91,8 +129,17 @@ class HomeFragment : Fragment() {
                     requireContext(),
                     "\uD83D\uDE28 Wooops ${it.error}",
                     Toast.LENGTH_LONG
-                ).show()}
+                ).show()
+            }
         }
+
+        if (!model.article.hasObservers()) {
+            model.article.observe(viewLifecycleOwner, {
+                binding.refresh.isRefreshing = false
+                lifecycleScope.launch { homeArticleAdapter.submitData(it) }
+            })
+        }
+
     }
 
     private fun showEmptyList(show: Boolean) {

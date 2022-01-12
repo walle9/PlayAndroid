@@ -2,7 +2,7 @@ package com.walle.playandroid.model
 
 data class Article(
     val curPage: Int,
-    val datas: List<Data>,
+    val datas: MutableList<Data>,
     val offset: Int,
     val over: Boolean,
     val pageCount: Int,
@@ -10,6 +10,7 @@ data class Article(
     val total: Int
 ) {
     data class Data(
+        var isTop:Boolean,
         val apkLink: String,
         val audit: Int,
         val author: String,
@@ -44,6 +45,8 @@ data class Article(
         val visible: Int,
         val zan: Int
     ) {
+
+
         data class Tag(
             val name: String,
             val url: String
