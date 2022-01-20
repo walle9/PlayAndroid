@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.walle.playandroid.model.Banner
+import com.walle.playandroid.viewmodel.HomeViewModel
 
 class BannerAdapter:RecyclerView.Adapter<BannerViewHolder>() {
     private var mData:List<Banner> = arrayListOf()

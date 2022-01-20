@@ -1,13 +1,16 @@
 package com.walle.playandroid.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +21,7 @@ import com.walle.playandroid.adapter.BannerAdapter
 import com.walle.playandroid.adapter.HomeArticleAdapter
 import com.walle.playandroid.databinding.FragmentHomeBinding
 import com.walle.playandroid.common.lifecycle.LifecycleEventDispatcher
+import com.walle.playandroid.ui.activity.SearchActivity
 import com.walle.playandroid.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 
@@ -31,6 +35,10 @@ class HomeFragment : Fragment() {
 
     private val menuItem: MenuItem by lazy {
         binding.toolbar.menu.findItem(R.id.app_bar_search)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
@@ -59,10 +67,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        menuItem.setOnMenuItemClickListener {
-            false
-        }
-
         initToolbar()
         initRecyclerView()
         initBanner()
@@ -72,6 +76,11 @@ class HomeFragment : Fragment() {
     private fun initToolbar() {
         binding.collapsingToolbarLayout.setExpandedTitleColor(resources.getColor(R.color.transparent))
         binding.collapsingToolbarLayout.setCollapsedTitleTextColor(resources.getColor(R.color.white))
+
+        binding.toolbar.setOnMenuItemClickListener {
+            SearchActivity.actionStart(requireContext())
+            false
+        }
 
         model.appbarLayoutIsClosed.observe(viewLifecycleOwner) { isClosed ->
             menuItem.isVisible = isClosed

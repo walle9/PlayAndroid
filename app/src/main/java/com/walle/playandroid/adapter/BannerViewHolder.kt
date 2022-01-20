@@ -10,13 +10,26 @@ import com.walle.playandroid.databinding.ItemHomeArticleBinding
 import com.walle.playandroid.databinding.ItemHomeBannerBinding
 import com.walle.playandroid.model.Article
 import com.walle.playandroid.model.Banner
+import com.walle.playandroid.model.HotKey
+import com.walle.playandroid.ui.activity.WebActivity
+import com.walle.playandroid.viewmodel.HomeViewModel
+import com.walle.playandroid.viewmodel.SearchViewModel
 
 class BannerViewHolder(private val binding: ItemHomeBannerBinding):RecyclerView.ViewHolder(binding.root) {
-
+    lateinit var item: Banner
+    init {
+        binding.root.run {
+            setOnClickListener {
+                WebActivity.actionStart(context, item.url)
+            }
+        }
+    }
 
     fun bind(item:Banner) {
         binding.data = item
+        this.item = item
     }
+
 
     companion object{
         fun create(parent:ViewGroup):BannerViewHolder{
