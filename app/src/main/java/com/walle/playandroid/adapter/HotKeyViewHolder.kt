@@ -30,7 +30,7 @@ class HotKeyViewHolder(private val binding: ItemSearchHotKeyBinding):RecyclerVie
     init {
         binding.root.setOnClickListener {
             searchViewModel.searchEdit.value = item.name
-            searchViewModel.search(item.name)
+            searchViewModel.onTextSubmit(item.name)
         }
     }
 
